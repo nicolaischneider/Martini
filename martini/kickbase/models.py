@@ -1,6 +1,6 @@
 from django.db import models
 from kickbase_api.kickbase import Kickbase
-from kickbase_api import models
+from kickbase_api import models as k_models
 import os
 import json
 
@@ -10,7 +10,7 @@ kickbase = Kickbase()
 class User():
     user = None
     leagueData = None
-    userLeagueData: models.league_me = None
+    userLeagueData: k_models.league_me = None
 
     def __init__(self):
         self.login()
@@ -66,7 +66,7 @@ class User():
             pass
 
 class JSONParser():
-    def getPlayerAsJSON(self, player: models.player):
+    def getPlayerAsJSON(self, player: k_models.player):
         playerArr = []
         for p in player:
             name = p.first_name + " " + p.last_name
@@ -82,3 +82,9 @@ class JSONParser():
         }
 
         return playerJSON
+
+class Player(models.Model):
+    first_name = models.CharField(max_length=120)
+    last_name = models.CharField(max_length=120)
+    totalPoints = models.IntegerField()
+    market_val = models.DecimalField(max_digits=15, decimal_places=2)

@@ -78,8 +78,13 @@ WSGI_APPLICATION = 'martini.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'djongo',
+        'NAME': 'martini',
+        
+        # include client once backend gets deployed
+        #'CLIENT': {
+        #   'host': 'your-db-host',
+        #}
     }
 }
 

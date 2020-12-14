@@ -7,7 +7,8 @@ A kickbase-BOT for earnings-maximization.
 * `django`
 * `requests`
 * `kickbase_api`
-
+* `djongo`
+* [MongoDB](https://docs.mongodb.com/manual/tutorial/install-mongodb-on-os-x/)
 
 ## Setup for each session
 Activate the virtual environment for every new session:
