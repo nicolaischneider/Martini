@@ -22,6 +22,6 @@ urlpatterns = [
     path('', views.home_view),
     path('admin/', admin.site.urls),
     path('user/', views.getUser),
-    path('stats/', views.getUserStats),
+    path('userstats/', views.getUserStats),
     path('player/', views.getPlayers)
 ]

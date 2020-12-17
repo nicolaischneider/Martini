@@ -69,11 +69,27 @@ class JSONParser():
     def getPlayerAsJSON(self, player: k_models.player):
         playerArr = []
         for p in player:
-            name = p.first_name + " " + p.last_name
+
+            first_name = p.first_name
+            last_name = p.last_name
             market_val = p.market_value
+            market_value_purchased = "-"
+            market_value_trend = p.market_value_trend
+            position = str(p.position.name)
+            points = p.totalPoints
+            status = str(p.status.name)
+            id_player = p.id
+
             playerStruct = {
-                "name":name,
-                "market_val":market_val
+                "first_name": first_name,
+                "last_name": last_name,
+                "market_val": market_val,
+                "market_val_purchased": market_value_purchased,
+                "market_value_trend": market_value_trend,
+                "position": position,
+                "points": points,
+                "status": status,
+                "id_player": id_player
             }
             playerArr.append(playerStruct)
         
