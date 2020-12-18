@@ -11,10 +11,12 @@ class User():
     user = None
     leagueData = None
     userLeagueData: k_models.league_me = None
+    transactions = []
 
     def __init__(self):
         self.login()
         self.getUserStats()
+        self.getTransactions()
 
     @classmethod
     def login(self):
@@ -43,6 +45,60 @@ class User():
             print("Something went wrong with the retrieval of user stats")
             pass
 
+    @classmethod
+    def getTransactions(self):
+        #meta_feed = None
+        try:
+            meta_feed = kickbase.league_feed(0, self.leagueData)
+            print("meta data was retrieved")
+        except:
+            print("Something went wrong while retrieving meta data")
+            return
+
+        # iterate through feed
+        for item in meta_feed:
+
+            meta = item.meta
+            user_name = self.user.name
+            transaction_type: str = ""
+            traded_player_id: str = ""
+            traded_player_name: str = ""
+            value: int = -1
+
+            if str(item.type.name) == "BUY":
+                if meta.buyer_name == user_name:
+                    transaction_type = "BUY"
+                    value = meta.buy_price
+                    traded_player_id = meta.player_id
+                    traded_player_name = meta.player_last_name
+                else:
+                    continue
+
+            if str(item.type.name) == "SALE":
+                if meta.seller_name == user_name:
+                    transaction_type = "SALE"
+                    value = meta.sell_price
+                    traded_player_id = meta.player_id
+                    traded_player_name = meta.player_last_name
+                else:
+                    continue
+
+            # if transaction was found: add
+            if value > 0:
+                t = Transaction.objects.filter(traded_player_id=traded_player_id,value=value)
+                if len(t) > 0:
+                    print("transaction already exists: " + traded_player_name + ", Price: " + str(value))
+                else:
+                    trans = Transaction(
+                        transaction_type=transaction_type,
+                        traded_player_id=traded_player_id,
+                        traded_player_name=traded_player_name,
+                        value=value
+                    )
+                    trans.save()
+                    print("added new transaction: " + traded_player_name + ", Price: " + str(value))
+
+        self.transactions = Transaction.objects.all()
 
     # GETTER
     def getUser(self):
@@ -65,7 +121,30 @@ class User():
             print("could not extract player")
             pass
 
+    def getListOfTransactions(self):
+        if len(self.transactions) > 0:
+            transactionArray = []
+            for tran in self.transactions:
+                transaction_type = tran.transaction_type
+                traded_player_id = tran.traded_player_id
+                traded_player_name = tran.traded_player_name
+                value = tran.value
+
+                transactionStruct = {
+                    "transaction_type": transaction_type,
+                    "traded_player_id": traded_player_id,
+                    "traded_player_name": traded_player_name,
+                    "value": value
+                }
+                transactionArray.append(transactionStruct)
+
+            transactionJSON = {
+                "transactions": transactionArray
+            }
+            return transactionJSON
+
 class JSONParser():
+
     def getPlayerAsJSON(self, player: k_models.player):
         playerArr = []
         for p in player:
@@ -98,6 +177,12 @@ class JSONParser():
         }
 
         return playerJSON
+
+class Transaction(models.Model):
+    transaction_type = models.CharField(max_length=10,default="")
+    traded_player_id = models.CharField(max_length=10,default="")
+    traded_player_name = models.CharField(max_length=30,default="")
+    value = models.IntegerField(default=-1)
 
 class Player(models.Model):
     first_name = models.CharField(max_length=120)

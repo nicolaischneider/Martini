@@ -74,13 +74,20 @@ WSGI_APPLICATION = 'martini.wsgi.application'
 
 
 # Database
-# https://docs.djangoproject.com/en/3.1/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': 'djongo',
         'NAME': 'martini',
-        
+        'ENFORCE_SCHEMA': False,
+        'LOGGING': {
+            'version': 1,
+            'loggers': {
+                'djongo': {
+                    'level': 'DEBUG',
+                    'propagate': False,                        
+                }
+            },    
+        },
         # include client once backend gets deployed
         #'CLIENT': {
         #   'host': 'your-db-host',

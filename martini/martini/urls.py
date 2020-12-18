@@ -23,5 +23,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('user/', views.getUser),
     path('userstats/', views.getUserStats),
-    path('player/', views.getPlayers)
+    path('player/', views.getPlayers),
+    path('transactions/', views.getTransactions)
 ]
