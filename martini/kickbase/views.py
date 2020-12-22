@@ -34,11 +34,7 @@ def getUserStats(request, *args, **kwargs):
 
 def getPlayers(request, *args, **kwargs):
     players = k_user.getUserPlayer()
-    
-    pi = models.JSONParser()
-    content = pi.getPlayerAsJSON(player=players)
-
-    return JsonResponse(content)
+    return JsonResponse(players)
 
 def getTransactions(request, *args, **kwargs):
     transactions = k_user.getListOfTransactions()

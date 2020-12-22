@@ -8,15 +8,19 @@ kickbase = Kickbase()
 
 # Create your models here.
 class User():
+
     user = None
     leagueData = None
     userLeagueData: k_models.league_me = None
+
     transactions = []
+    transactionsDict = {}
 
     def __init__(self):
         self.login()
         self.getUserStats()
         self.getTransactions()
+        self.updateOwnedPlayer()
 
     @classmethod
     def login(self):
@@ -47,7 +51,6 @@ class User():
 
     @classmethod
     def getTransactions(self):
-        #meta_feed = None
         try:
             meta_feed = kickbase.league_feed(0, self.leagueData)
             print("meta data was retrieved")
@@ -60,9 +63,6 @@ class User():
 
             meta = item.meta
             user_name = self.user.name
-            transaction_type: str = ""
-            traded_player_id: str = ""
-            traded_player_name: str = ""
             value: int = -1
 
             if str(item.type.name) == "BUY":
@@ -100,6 +100,61 @@ class User():
 
         self.transactions = Transaction.objects.all()
 
+    @classmethod
+    def updateOwnedPlayer(self):
+        # create dictionary with transactions
+        self.transactionsDict = {}
+        if len(self.transactions) > 0:
+            for tran in self.transactions:
+                transaction_type = tran.transaction_type
+                if str(transaction_type) == "BUY":
+                    traded_player_id = tran.traded_player_id
+                    value = tran.value
+                    self.transactionsDict.update({traded_player_id : value})
+
+        # check if some players were sold ?
+        try:
+            player = kickbase.league_user_players(self.leagueData, self.user)
+        except:
+            print("could not extract player")
+            return
+
+        stored_player = OwnedPlayer.objects.all()
+        for op in stored_player:
+            id_player_stored = op.traded_player_id
+            still_owned = False
+
+            for p in player:
+                id_player = p.id
+                if id_player == id_player_stored:
+                    still_owned = True
+                    break
+
+            if still_owned == False:
+                op.delete()
+        
+        # add player to database (if not existent)
+        for p in player:
+            id_player = p.id
+            market_val = p.market_value
+
+            owned_player = OwnedPlayer.objects.filter(traded_player_id=id_player)
+            if len(owned_player) > 0:
+                print("player with id " + id_player + " is already stored")
+            else:
+                if id_player in self.transactionsDict:
+                    print("found purchase value in transactions")
+                    new_owned_player_val = self.transactionsDict[id_player]
+                else:
+                    print("didn't find purchase value in transactions")
+                    new_owned_player_val = market_val
+                
+                new_owned_player = OwnedPlayer(
+                    traded_player_id=id_player,
+                    market_value_purchased=new_owned_player_val
+                )
+                new_owned_player.save()
+
     # GETTER
     def getUser(self):
         if self.user is not None:
@@ -115,11 +170,48 @@ class User():
 
     def getUserPlayer(self):
         try:
-            players = kickbase.league_user_players(self.leagueData, self.user)
-            return players
+            player = kickbase.league_user_players(self.leagueData, self.user)
         except:
             print("could not extract player")
             pass
+
+        playerArr = []
+        for p in player:
+            first_name = p.first_name
+            last_name = p.last_name
+            market_val = p.market_value
+            market_value_trend = p.market_value_trend
+            position = str(p.position.name)
+            points = p.totalPoints
+            status = str(p.status.name)
+            id_player = p.id
+
+            market_value_purchased = "--"
+            owned_player = OwnedPlayer.objects.filter(traded_player_id=id_player)
+            if len(owned_player) == 1:
+                for op in owned_player:
+                    market_value_purchased = op.market_value_purchased
+            else:
+                market_value_purchased = "-"
+
+            playerStruct = {
+                "first_name": first_name,
+                "last_name": last_name,
+                "market_val": market_val,
+                "market_val_purchased": market_value_purchased,
+                "market_value_trend": market_value_trend,
+                "position": position,
+                "points": points,
+                "status": status,
+                "id_player": id_player
+            }
+            playerArr.append(playerStruct)
+        
+        playerJSON = {
+            "player": playerArr
+        }
+
+        return playerJSON
 
     def getListOfTransactions(self):
         if len(self.transactions) > 0:
@@ -143,49 +235,12 @@ class User():
             }
             return transactionJSON
 
-class JSONParser():
-
-    def getPlayerAsJSON(self, player: k_models.player):
-        playerArr = []
-        for p in player:
-
-            first_name = p.first_name
-            last_name = p.last_name
-            market_val = p.market_value
-            market_value_purchased = "-"
-            market_value_trend = p.market_value_trend
-            position = str(p.position.name)
-            points = p.totalPoints
-            status = str(p.status.name)
-            id_player = p.id
-
-            playerStruct = {
-                "first_name": first_name,
-                "last_name": last_name,
-                "market_val": market_val,
-                "market_val_purchased": market_value_purchased,
-                "market_value_trend": market_value_trend,
-                "position": position,
-                "points": points,
-                "status": status,
-                "id_player": id_player
-            }
-            playerArr.append(playerStruct)
-        
-        playerJSON = {
-            "player": playerArr
-        }
-
-        return playerJSON
-
 class Transaction(models.Model):
     transaction_type = models.CharField(max_length=10,default="")
     traded_player_id = models.CharField(max_length=10,default="")
     traded_player_name = models.CharField(max_length=30,default="")
     value = models.IntegerField(default=-1)
 
-class Player(models.Model):
-    first_name = models.CharField(max_length=120)
-    last_name = models.CharField(max_length=120)
-    totalPoints = models.IntegerField()
-    market_val = models.DecimalField(max_digits=15, decimal_places=2)
+class OwnedPlayer(models.Model):
+    traded_player_id = models.CharField(max_length=10,default="")
+    market_value_purchased = models.IntegerField(default=-1)
