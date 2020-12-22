@@ -180,7 +180,18 @@ class User():
             first_name = p.first_name
             last_name = p.last_name
             market_val = p.market_value
+
+            # 2: value trend going down
+            # 1: value trend going up
+            # 0: no change
             market_value_trend = p.market_value_trend
+            if market_value_trend == 0:
+                market_value_trend_string = "-"
+            elif market_value_trend == 1:
+                market_value_trend_string = "UP"
+            else:
+                market_value_trend_string = "DOWN"
+            
             position = str(p.position.name)
             points = p.totalPoints
             status = str(p.status.name)
@@ -199,7 +210,7 @@ class User():
                 "last_name": last_name,
                 "market_val": market_val,
                 "market_val_purchased": market_value_purchased,
-                "market_value_trend": market_value_trend,
+                "market_value_trend": market_value_trend_string,
                 "position": position,
                 "points": points,
                 "status": status,
