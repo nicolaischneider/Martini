@@ -2,7 +2,9 @@ from django.shortcuts import render
 from kickbase_api.kickbase import Kickbase
 from django.http import JsonResponse
 from kickbase import models
+import json
 from django.http import HttpResponse
+from kickbase_api.models.player_marketvalue_history import PlayerMarketValueHistory
 
 k_user = models.User()
 

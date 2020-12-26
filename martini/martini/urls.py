@@ -24,5 +24,5 @@ urlpatterns = [
     path('user/', views.getUser),
     path('userstats/', views.getUserStats),
     path('player/', views.getPlayers),
-    path('transactions/', views.getTransactions)
+    path('transactions/', views.getTransactions),
 ]

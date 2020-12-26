@@ -1,8 +1,11 @@
 from django.db import models
-from kickbase_api.kickbase import Kickbase
-from kickbase_api import models as k_models
 import os
 import json
+
+from kickbase_api.kickbase import Kickbase
+from kickbase_api import models as k_models
+from kickbase_api.models.player import Player
+from kickbase_api.models.player_marketvalue_history import PlayerMarketValueHistory
 
 kickbase = Kickbase()
 
@@ -21,6 +24,7 @@ class User():
         self.getUserStats()
         self.getTransactions()
         self.updateOwnedPlayer()
+        #self.historicalShizzle()
 
     @classmethod
     def login(self):
@@ -156,6 +160,15 @@ class User():
                 new_owned_player.save()
 
     # GETTER
+    def getMarketValueHistoryOfPlayer(self, player: Player):
+        try:
+            player_marketvalue_hist = kickbase.league_player_marketvalue_history(self.leagueData, player)
+            print("player marketvals were retrieved")
+            return player_marketvalue_hist
+        except:
+            print("Something went wrong with the retrieval of player market vals")
+            pass
+
     def getUser(self):
         if self.user is not None:
             return self.user
