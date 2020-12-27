@@ -24,7 +24,6 @@ class User():
         self.getUserStats()
         self.getTransactions()
         self.updateOwnedPlayer()
-        #self.historicalShizzle()
 
     @classmethod
     def login(self):
@@ -160,6 +159,15 @@ class User():
                 new_owned_player.save()
 
     # GETTER
+    def getStatsHistoryOfPlayer(self, player: Player):
+        try:
+            player_stats = kickbase.player_stats(player)
+            print("player stats were retrieved")
+            return player_stats
+        except:
+            print("Something went wrong with the retrieval of player stats")
+            pass
+
     def getMarketValueHistoryOfPlayer(self, player: Player):
         try:
             player_marketvalue_hist = kickbase.league_player_marketvalue_history(self.leagueData, player)
@@ -167,6 +175,16 @@ class User():
             return player_marketvalue_hist
         except:
             print("Something went wrong with the retrieval of player market vals")
+            pass
+
+    # return json (!!!)
+    def getPlayerFeed(self, player: Player):
+        try:
+            player_feed = kickbase.league_players_feed(self.leagueData, player)
+            print("player feed was retrieved successfully")
+            return player_feed
+        except:
+            print("Something went wrong with player feed retrieval")
             pass
 
     def getUser(self):
