@@ -40,7 +40,7 @@ class User():
             pass
 
         try:
-            user, leagues = kickbase.login("awt_3@yahoo.com", "ilovesoccer3")
+            user, leagues = kickbase.login("<mail>", "<pw>")
             self.user = user
             self.leagueData = leagues[0]
         except:
