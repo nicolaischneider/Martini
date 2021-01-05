@@ -7,6 +7,7 @@ from kickbase.models import OwnedPlayer
 from kickbase_api.kickbase import Kickbase
 from kickbase_api import models as k_models
 from kickbase_api.models.player import Player
+from kickbase_api.models.player import PlayerStatus
 from kickbase_api.models.player_marketvalue_history import PlayerMarketValueHistory
 from kickbase_api.models.market_player import MarketPlayer
 from kickbase_api.models.market import Market
@@ -40,7 +41,7 @@ class User():
             pass
 
         try:
-            user, leagues = kickbase.login("<mail>", "<pw>")
+            user, leagues = kickbase.login("awt_3@yahoo.com", "ilovesoccer3")
             self.user = user
             self.leagueData = leagues[0]
         except:
@@ -167,6 +168,11 @@ class User():
                 new_owned_player.save()
 
     # GETTER
+    def getPredictionBuy(self):
+        predict = PredictBuy()
+        prediction = predict.predict(player_tm=self.getPlayerOnTradeMarket())
+        return prediction
+
     def getPlayerOnTradeMarket(self):
         # get players from market
         try:
@@ -206,16 +212,29 @@ class User():
                 if p_highest_offer <= additional_price:
                     p_highest_offer = player.market_value + additional_price
                 
-                # Ccheck if user can afford player
+                # check if user can afford player
                 if self.userLeagueData.budget < p_highest_offer:
                     continue
-                
+
+                # get stats of player
+                player_stats = self.getStatsHistoryOfPlayer(player)
+
+                if player_stats is None:
+                    continue
+
+                if player.status != PlayerStatus.NONE:
+                    print("player not added because currently not playing")
+                    continue
+
                 optional_player = {
-                    'player': player,
-                    'value': p_highest_offer 
+                    'first_name': player.first_name,
+                    'last_name': player.last_name,
+                    'player_id': player.id,
+                    'value': p_highest_offer,
+                    'stats': player_stats
                 }
+
                 player_from_market.append(optional_player)
-                print("optional buyable player: " + player.last_name + "; price: " + str(p_highest_offer))
             except:
                 print("something went wrong with extracting offer from player")
                 pass
@@ -225,7 +244,6 @@ class User():
     def getStatsHistoryOfPlayer(self, player: Player):
         try:
             player_stats = kickbase.player_stats(player)
-            print("player stats were retrieved")
             return player_stats
         except:
             print("Something went wrong with the retrieval of player stats")

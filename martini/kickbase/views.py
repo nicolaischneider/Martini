@@ -42,3 +42,11 @@ def getPlayers(request, *args, **kwargs):
 def getTransactions(request, *args, **kwargs):
     transactions = k_user.getListOfTransactions()
     return JsonResponse(transactions)
+
+def getPrediction(request, *args, **kwargs):
+    predBuy = k_user.getPredictionBuy()
+    prediction = {
+        "Buy": predBuy,
+        "Sell": {}
+    }
+    return JsonResponse(prediction)

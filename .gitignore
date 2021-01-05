@@ -1,3 +1,4 @@
 # created by virtualenv automatically
 .vscode
 *.pyc
+.DS_Store
