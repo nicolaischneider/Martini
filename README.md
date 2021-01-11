@@ -8,6 +8,7 @@ A kickbase-BOT for earnings-maximization.
 * `requests`
 * `kickbase_api`
 * `djongo`
+* `django-cors-headers`
 * [MongoDB](https://docs.mongodb.com/manual/tutorial/install-mongodb-on-os-x/)
 
 ## Setup for each session
