@@ -45,8 +45,9 @@ def getTransactions(request, *args, **kwargs):
 
 def getPrediction(request, *args, **kwargs):
     predBuy = k_user.getPredictionBuy()
+    predSell = k_user.getPredictionSell()
     prediction = {
         "Buy": predBuy,
-        "Sell": {}
+        "Sell": predSell
     }
     return JsonResponse(prediction)

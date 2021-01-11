@@ -173,6 +173,12 @@ class User():
         prediction = predict.predict(player_tm=self.getPlayerOnTradeMarket())
         return prediction
 
+    def getPredictionSell(self):
+        predict = PredictSell()
+        #get owned players
+        prediction = predict.predict(player_op=self.getUserPlayer()['player'])
+        return prediction
+
     def getPlayerOnTradeMarket(self):
         # get players from market
         try:
@@ -292,6 +298,7 @@ class User():
             first_name = p.first_name
             last_name = p.last_name
             market_val = p.market_value
+
 
             # 2: value trend going down
             # 1: value trend going up
