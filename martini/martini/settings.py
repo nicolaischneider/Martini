@@ -38,6 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    # other
+    'corsheaders',
+
     # personal
     'kickbase',
 ]
@@ -50,6 +53,9 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    # cors
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'martini.urls'
@@ -72,6 +78,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'martini.wsgi.application'
 
+CORS_ALLOW_ALL_ORIGINS = True
 
 # Database
 DATABASES = {
