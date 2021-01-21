@@ -6,6 +6,7 @@ from user.user import User
 import json
 from django.http import HttpResponse
 from kickbase_api.models.player_marketvalue_history import PlayerMarketValueHistory
+from django.views.decorators.csrf import csrf_exempt
 
 k_user = User()
 
@@ -18,8 +19,16 @@ def home_view(request, *args, **kwargs):
     return HttpResponse("<h1>Welcome to the Martini API</h1>")
 
 # Create your views here.
+@csrf_exempt
 def login(request, *args, **kwargs):
-    isLoggedIn = k_user.login("<mail>", "<pw>")
+    if request.method != 'POST':
+        return JsonResponse({"m": "Bad Request"}) # change to http error response
+
+    body = json.loads(request.body)
+    email = body['email']
+    pw = body['pw']
+
+    isLoggedIn = k_user.login(email, pw)
     if isLoggedIn == True:
         responseString = "Logged in succesfully"
     else:
@@ -32,6 +41,9 @@ def login(request, *args, **kwargs):
     return JsonResponse(resp)
 
 def logout(request, *args, **kwargs):
+    if k_user.isLoggedIn == False:
+        return JsonResponse(ERR_JSON)
+        
     k_user.logout()
     resp =  {
         "m": "Logged out",
