@@ -26,4 +26,6 @@ urlpatterns = [
     path('player/', views.getPlayers),
     path('transactions/', views.getTransactions),
     path('predict/', views.getPrediction),
+    path('login/', views.login),
+    path('logout/', views.logout),
 ]

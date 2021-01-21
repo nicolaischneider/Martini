@@ -27,6 +27,8 @@ class PredictSell:
             
             if evaluation > self.EVAL_THRESHOLD:
                 evaluated_players.append(evaluatedPlayer)
+            else:
+                print("player not worth selling due to eval score " + str(evaluation))
 
         # sort list by highest evaluation and choose top n player
         evaluated_players.sort(key=operator.itemgetter(5))
@@ -52,9 +54,9 @@ class PredictSell:
 
         #check trend
         if player['market_value_trend'] == 'UP':
-        	score += 10
+        	score -= 10
         elif player['market_value_trend'] == 'DOWN':
-            score -= 10
+            score += 10
 
         #check profit
         profit_perc = ((float(player['market_val'] / player['market_val_purchased']))-1)

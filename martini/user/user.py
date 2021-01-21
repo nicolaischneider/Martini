@@ -16,11 +16,12 @@ from kickbase_api.models.market import Market
 from prediction.predict_buy import PredictBuy
 from prediction.predict_sell import PredictSell
 
-kickbase = Kickbase()
-
 # Create your models here.
 class User():
 
+    kickbase = Kickbase()
+    isLoggedIn = False
+    
     user = None
     leagueData = None
     userLeagueData: k_models.league_me = None
@@ -28,47 +29,57 @@ class User():
     transactions = []
     transactionsDict = {}
 
-    def __init__(self):
-        self.login()
-        self.getUserStats()
-        self.getTransactions()
-        self.updateOwnedPlayer()
-
     @classmethod
-    def login(self):
-        if kickbase._is_token_valid == True:
+    def login(self, email: str, pw: str) -> bool:
+        if self.kickbase._is_token_valid == True or self.isLoggedIn == True:
             print("already logged in")
-            pass
+            return True
 
         try:
-            user, leagues = kickbase.login("awt_3@yahoo.com", "ilovesoccer3")
+            #"awt_3@yahoo.com", "ilovesoccer3"
+            user, leagues = self.kickbase.login(email, pw)
             self.user = user
             self.leagueData = leagues[0]
         except:
             print("Something went wrong with the retrieval of login data")
-            pass
+            return False
+
+        if self.getUserStats() != True:
+            return False
+        if self.getTransactions() != True:
+            return False
+        
+        self.updateOwnedPlayer()
+        self.isLoggedIn = True
+        return True
+
+    @classmethod 
+    def logout(self):
+        self.kickbase = Kickbase()
+        self.isLoggedIn = False
 
     @classmethod
-    def getUserStats(self):
+    def getUserStats(self) -> bool:
         if self.userLeagueData is not None:
             print("user stats already retrieved")
-            pass
+            return False
 
         try:
-            self.userLeagueData = kickbase.league_me(self.leagueData)
+            self.userLeagueData = self.kickbase.league_me(self.leagueData)
             print("user stats were retrieved")
+            return True
         except:
             print("Something went wrong with the retrieval of user stats")
-            pass
+            return False
 
     @classmethod
-    def getTransactions(self):
+    def getTransactions(self) -> bool:
         try:
-            meta_feed = kickbase.league_feed(0, self.leagueData)
+            meta_feed = self.kickbase.league_feed(0, self.leagueData)
             print("meta data was retrieved")
         except:
             print("Something went wrong while retrieving meta data")
-            return
+            return False
 
         # iterate through feed
         for item in meta_feed:
@@ -111,6 +122,7 @@ class User():
                     print("added new transaction: " + traded_player_name + ", Price: " + str(value))
 
         self.transactions = Transaction.objects.all()
+        return True
 
     @classmethod
     def updateOwnedPlayer(self):
@@ -126,10 +138,9 @@ class User():
 
         # check if some players were sold ?
         try:
-            player = kickbase.league_user_players(self.leagueData, self.user)
+            player = self.kickbase.league_user_players(self.leagueData, self.user)
         except:
             print("could not extract player")
-            return
 
         stored_player = OwnedPlayer.objects.all()
         for op in stored_player:
@@ -165,9 +176,19 @@ class User():
                     traded_player_id=id_player,
                     market_value_purchased=new_owned_player_val
                 )
-                new_owned_player.save()
+                new_owned_player.save()        
 
     # GETTER
+    def tester(self):
+        try:
+            #allp = kickbase.test_all_player(self.leagueData)
+            players = self.kickbase.league_user_players(self.leagueData, self.user)
+            hist = self.getMarketValueHistoryOfPlayer(players[1])
+            return hist
+        except:
+            print("test failed")
+            return
+
     def getPredictionBuy(self):
         predict = PredictBuy()
         prediction = predict.predict(player_tm=self.getPlayerOnTradeMarket())
@@ -175,14 +196,13 @@ class User():
 
     def getPredictionSell(self):
         predict = PredictSell()
-        #get owned players
         prediction = predict.predict(player_op=self.getUserPlayer()['player'])
         return prediction
 
     def getPlayerOnTradeMarket(self):
         # get players from market
         try:
-            market = kickbase.market(self.leagueData)
+            market = self.kickbase.market(self.leagueData)
             print("received market")
         except:
             print("something went wrong witrh tm")
@@ -193,7 +213,7 @@ class User():
         for m_player in market.players:
             try:
                 # ectract player from id
-                player = kickbase.player_info(self.leagueData, str(m_player.id))
+                player = self.kickbase.player_info(self.leagueData, str(m_player.id))
             except:
                 print("something went wrong with extracting player from id")
                 continue
@@ -249,7 +269,7 @@ class User():
 
     def getStatsHistoryOfPlayer(self, player: Player):
         try:
-            player_stats = kickbase.player_stats(player)
+            player_stats = self.kickbase.player_stats(player)
             return player_stats
         except:
             print("Something went wrong with the retrieval of player stats")
@@ -257,7 +277,7 @@ class User():
 
     def getMarketValueHistoryOfPlayer(self, player: Player):
         try:
-            player_marketvalue_hist = kickbase.league_player_marketvalue_history(self.leagueData, player)
+            player_marketvalue_hist = self.kickbase.league_player_marketvalue_history(self.leagueData, player)
             print("player marketvals were retrieved")
             return player_marketvalue_hist
         except:
@@ -267,7 +287,7 @@ class User():
     # return json (!!!)
     def getPlayerFeed(self, player: Player):
         try:
-            player_feed = kickbase.league_players_feed(self.leagueData, player)
+            player_feed = self.kickbase.league_players_feed(self.leagueData, player)
             print("player feed was retrieved successfully")
             return player_feed
         except:
@@ -288,7 +308,7 @@ class User():
 
     def getUserPlayer(self):
         try:
-            player = kickbase.league_user_players(self.leagueData, self.user)
+            player = self.kickbase.league_user_players(self.leagueData, self.user)
         except:
             print("could not extract player")
             pass

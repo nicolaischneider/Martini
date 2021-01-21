@@ -9,11 +9,39 @@ from kickbase_api.models.player_marketvalue_history import PlayerMarketValueHist
 
 k_user = User()
 
+# error response for not being logged in
+ERR_JSON = {
+    "error": "You need to login first"
+}
+
 def home_view(request, *args, **kwargs):
     return HttpResponse("<h1>Welcome to the Martini API</h1>")
 
 # Create your views here.
+def login(request, *args, **kwargs):
+    isLoggedIn = k_user.login("<mail>", "<pw>")
+    if isLoggedIn == True:
+        responseString = "Logged in succesfully"
+    else:
+        responseString = "Something went wrong during Login"
+
+    resp =  {
+        "m": responseString,
+        "loggedIn": isLoggedIn
+    }
+    return JsonResponse(resp)
+
+def logout(request, *args, **kwargs):
+    k_user.logout()
+    resp =  {
+        "m": "Logged out",
+    }
+    return JsonResponse(resp)
+
 def getUser(request, *args, **kwargs):
+    if k_user.isLoggedIn == False:
+        return JsonResponse(ERR_JSON)
+
     usr = k_user.getUser()
     data = k_user.getLeagueData()
     userData = {
@@ -25,6 +53,9 @@ def getUser(request, *args, **kwargs):
     return JsonResponse(userData)
 
 def getUserStats(request, *args, **kwargs):
+    if k_user.isLoggedIn == False:
+        return JsonResponse(ERR_JSON)
+
     usr = k_user.getUser()    
     stats = k_user.getLeagueMe()
     userValues = {
@@ -36,14 +67,23 @@ def getUserStats(request, *args, **kwargs):
     return JsonResponse(userValues)
 
 def getPlayers(request, *args, **kwargs):
+    if k_user.isLoggedIn == False:
+        return JsonResponse(ERR_JSON)
+
     players = k_user.getUserPlayer()
     return JsonResponse(players)
 
 def getTransactions(request, *args, **kwargs):
+    if k_user.isLoggedIn == False:
+        return JsonResponse(ERR_JSON)
+
     transactions = k_user.getListOfTransactions()
     return JsonResponse(transactions)
 
 def getPrediction(request, *args, **kwargs):
+    if k_user.isLoggedIn == False:
+        return JsonResponse(ERR_JSON)
+
     predBuy = k_user.getPredictionBuy()
     predSell = k_user.getPredictionSell()
     prediction = {
