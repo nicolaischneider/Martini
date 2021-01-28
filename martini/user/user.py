@@ -273,7 +273,7 @@ class User():
             return player_stats
         except:
             print("Something went wrong with the retrieval of player stats")
-            pass
+            return None
 
     def getMarketValueHistoryOfPlayer(self, player: Player):
         try:
@@ -282,7 +282,7 @@ class User():
             return player_marketvalue_hist
         except:
             print("Something went wrong with the retrieval of player market vals")
-            pass
+            return None
 
     # return json (!!!)
     def getPlayerFeed(self, player: Player):
@@ -384,3 +384,34 @@ class User():
                 "transactions": transactionArray
             }
             return transactionJSON
+
+    def getStatsForPrediction(self):
+        ERR = {"e": "ZOMEZING WENT WRONG"}
+        try:
+            players = self.kickbase.top_25_players()
+        except:
+            return ERR
+
+        player_stats = []
+        for p in players:
+            # market values
+            market_hist = self.getMarketValueHistoryOfPlayer(p)
+            stats = self.getStatsHistoryOfPlayer(p)
+
+            if market_hist is None:
+                print('stopped')
+                continue
+            if stats is None:
+                print('stopped')
+                continue
+
+            name = p.first_name + " " + p.last_name
+
+            content = {
+                'player': name,
+                'market_value': market_hist.marketvalues,
+                'stats': stats.stats
+            }
+            player_stats.append(content)
+        
+        return {'data':player_stats}

@@ -103,3 +103,9 @@ def getPrediction(request, *args, **kwargs):
         "Sell": predSell
     }
     return JsonResponse(prediction)
+
+def get_player_stats_prediction(request, *args, **kwargs):
+    if k_user.isLoggedIn == False:
+        return JsonResponse(ERR_JSON)
+    stats = k_user.getStatsForPrediction()
+    return JsonResponse(stats)

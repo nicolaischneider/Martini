@@ -28,4 +28,5 @@ urlpatterns = [
     path('predict/', views.getPrediction),
     path('login/', views.login),
     path('logout/', views.logout),
+    #path('statspred/', views.get_player_stats_prediction)
 ]
