@@ -7,6 +7,7 @@ import json
 from django.http import HttpResponse
 from kickbase_api.models.player_marketvalue_history import PlayerMarketValueHistory
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_protect
 
 k_user = User()
 
