@@ -384,6 +384,8 @@ class User():
                 "transactions": transactionArray
             }
             return transactionJSON
+        else:
+            return {"m":"no transactions"}
 
     def getStatsForPrediction(self):
         ERR = {"e": "ZOMEZING WENT WRONG"}
