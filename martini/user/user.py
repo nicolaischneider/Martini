@@ -290,7 +290,7 @@ class User():
             try:
                 # get price
                 p_highest_offer: int = 0
-                additional_price = 100
+                additional_increase: float = 1.1
                 offer_already_made = False
 
                 if len(m_player.offers) > 0:
@@ -305,14 +305,14 @@ class User():
                         if offer.price > p_highest_offer:
                             p_highest_offer = offer.price
 
-                    p_highest_offer += additional_price
+                    p_highest_offer = int(additional_increase * float(p_highest_offer))
 
                 if offer_already_made == True:
                     print("offer mady by user already; player will not be considered for prediction")
                     continue
 
-                if p_highest_offer <= additional_price:
-                    p_highest_offer = player.market_value + additional_price
+                if p_highest_offer <= 0:
+                    p_highest_offer = int(float(player.market_value) * additional_increase)
                 
                 # check if user can afford player
                 if self.userLeagueData.budget < p_highest_offer:
