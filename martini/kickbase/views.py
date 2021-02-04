@@ -128,6 +128,27 @@ def trade(request, *args, **kwargs):
 
     return JsonResponse({"m": "Trade type has to be BUY or SELL"})
 
+def getOffers(request, *args, **kwargs):
+    if k_user.isLoggedIn == False:
+        return JsonResponse(ERR_JSON)
+
+    offers = k_user.getOffers()
+    return JsonResponse(offers)
+
+@csrf_exempt
+def acceptOffer(request, *args, **kwargs):
+    if request.method != 'POST':
+        return JsonResponse({"m": "Bad Request"}) # change to http error response
+
+    if k_user.isLoggedIn == False:
+        return JsonResponse(ERR_JSON)
+
+    body = json.loads(request.body)
+    offer_id = body["offer_id"]
+    player_id = body["player_id"]
+    resp = k_user.acceptOffer(offer_id, player_id)
+    return JsonResponse(resp)
+
 def get_player_stats_prediction(request, *args, **kwargs):
     if k_user.isLoggedIn == False:
         return JsonResponse(ERR_JSON)

@@ -247,7 +247,25 @@ class User():
 
     def getPredictionSell(self):
         predict = PredictSell()
-        prediction = predict.predict(player_op=self.getUserPlayer()['player'])
+
+        # check if player was added to TM; if yes remove
+        players = self.getUserPlayer()['player']
+        players_to_predict = []
+        try:
+            market = self.kickbase.market(self.leagueData)
+        except:
+            return {}
+
+        for p in players:
+            addedToTM = False
+            for p_market in market.players:
+                if p['id_player'] == p_market.id:
+                    addedToTM = True
+                    break
+            if addedToTM == False:
+                players_to_predict.append(p)
+
+        prediction = predict.predict(player_op=players_to_predict)
         return prediction
 
     def getPlayerOnTradeMarket(self):
@@ -324,6 +342,57 @@ class User():
                 pass
         
         return player_from_market
+
+    def getOffers(self):
+        try:
+            market = self.kickbase.market(self.leagueData)
+        except:
+            return {"m": "Something went wrong"}
+
+        offers = []
+        for p in market.players:
+            # get all our players on TM that we get offers for
+            if self.user.name == p.username:
+                # get highest offer
+                p_highest_offer: int = -1
+                offer_id = "-"
+                if len(p.offers) > 0:
+                    for offer in p.offers:
+                        if offer.price > p_highest_offer:
+                            p_highest_offer = offer.price
+                            offer_id = offer.id
+                else:
+                    continue
+
+                active_offer = {
+                    "first_name": p.first_name,
+                    "last_name": p.last_name,
+                    "player_id": p.id,
+                    "offer_price": p_highest_offer,
+                    "offer_id": offer_id
+                }
+                offers.append(active_offer)
+
+        resp = {
+            "offers": offers
+        } 
+
+        return resp
+
+    def acceptOffer(self, offer_id: str, player_id: str):
+        resp = {
+            "playerSold": False,
+            "m": "Player was sold"
+        }
+        try:
+            player = self.kickbase.player_info(self.leagueData, player_id)
+            self.kickbase.accept_offer(offer_id, player, self.leagueData)
+        except:
+            resp["m"] = "Something went wrong with accepting the offer"
+            return resp
+
+        resp["playerSold"] = True
+        return resp
 
     def getStatsHistoryOfPlayer(self, player: Player):
         try:

@@ -26,8 +26,10 @@ urlpatterns = [
     path('player/', views.getPlayers),
     path('transactions/', views.getTransactions),
     path('predict/', views.getPrediction),
-    path('login/', views.login),
+    path('login/', views.login),                # POST
     path('logout/', views.logout),
-    path('trade/', views.trade),
+    path('trade/', views.trade),                # POST
+    path('offers/', views.getOffers),
+    path('acceptoffer/', views.acceptOffer),    # POST
     #path('statspred/', views.get_player_stats_prediction)
 ]
