@@ -189,6 +189,57 @@ class User():
             print("test failed")
             return
 
+    def buyPlayer(self, player_id: str, offer: int) -> json:
+        resp_code = {
+            "playerPurchased": False,
+            "m": "Something went wrong when trying to purchase player"
+        }
+
+        # get player
+        try:
+            player = self.kickbase.player_info(self.leagueData, player_id)
+        except:
+            resp_code['m'] = "Player couldn't be found"
+            return resp_code
+
+        # make offer
+        try:
+            self.kickbase.make_offer(offer, player, self.leagueData)
+        except:
+            return resp_code
+
+        # return if offer was made succesfully
+        resp_code['playerPurchased'] = True
+        resp_code['m'] = "Offer for player was made"
+        return resp_code
+
+    def sellPlayer(self, player_id: str) -> json:
+        resp_code = {
+            "playerAddedToMarket": False,
+            "m": "Something went wrong when trying to purchase player"
+        }
+
+        # get player
+        try:
+            player = self.kickbase.player_info(self.leagueData, player_id)
+        except:
+            resp_code['m'] = "Player couldn't be found"
+            return resp_code
+
+        # get price
+        price = int(player.market_value)
+
+        # add to market using kickbase
+        try:
+            self.kickbase.add_to_market(price, player, self.leagueData)
+        except:
+            return resp_code
+
+        # return if request was successful
+        resp_code['playerAddedToMarket'] = True
+        resp_code['m'] = "Player added to TM successfully"
+        return resp_code
+
     def getPredictionBuy(self):
         predict = PredictBuy()
         prediction = predict.predict(player_tm=self.getPlayerOnTradeMarket())
@@ -222,11 +273,14 @@ class User():
                 # get price
                 p_highest_offer: int = 0
                 additional_price = 100
+                offer_already_made = False
+
                 if len(m_player.offers) > 0:
                     for offer in m_player.offers:
                         # check if user name is samsies
                         if self.user.name == offer.user_name:
                             print("offer mady by user already")
+                            offer_already_made = True
                             continue
 
                         # update highest offer
@@ -234,6 +288,10 @@ class User():
                             p_highest_offer = offer.price
 
                     p_highest_offer += additional_price
+
+                if offer_already_made == True:
+                    print("offer mady by user already; player will not be considered for prediction")
+                    continue
 
                 if p_highest_offer <= additional_price:
                     p_highest_offer = player.market_value + additional_price

@@ -105,6 +105,29 @@ def getPrediction(request, *args, **kwargs):
     }
     return JsonResponse(prediction)
 
+@csrf_exempt
+def trade(request, *args, **kwargs):
+    if request.method != 'POST':
+        return JsonResponse({"m": "Bad Request"}) # change to http error response
+
+    if k_user.isLoggedIn == False:
+        return JsonResponse(ERR_JSON)
+
+    body = json.loads(request.body)
+    trade_type = body["type"]
+    player_id = body["player_id"]
+    price = body["price"]
+
+    if trade_type == "BUY":
+        res = k_user.buyPlayer(str(player_id), int(price))
+        return JsonResponse(res)
+
+    if trade_type == "SELL":
+        res = k_user.sellPlayer(str(player_id))
+        return JsonResponse(res)
+
+    return JsonResponse({"m": "Trade type has to be BUY or SELL"})
+
 def get_player_stats_prediction(request, *args, **kwargs):
     if k_user.isLoggedIn == False:
         return JsonResponse(ERR_JSON)
