@@ -482,6 +482,13 @@ class User():
                 "status": status,
                 "id_player": id_player
             }
+
+            try:
+                img_path = self.kickbase.player_image_path(self.leagueData, str(id_player))
+                playerStruct['img_path'] = img_path
+            except:
+                pass
+
             playerArr.append(playerStruct)
         
         playerJSON = {

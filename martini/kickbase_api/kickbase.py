@@ -252,6 +252,21 @@ class Kickbase:
             return Player(r.json())
         else:
             raise KickbaseException()
+
+    def player_image_path(self, league: Union[str, LeagueData], player_id: str) -> str:
+        league_id = self._get_league_id(league)
+        r = self._do_get("/leagues/{}/players/{}".format(league_id, player_id), True)
+        if r.status_code == 200:
+            p = r.json()
+            if 'profileBig' in p:
+                return p['profileBig']
+            
+            if 'profile' in p:
+                return p['profile']
+
+            raise KickbaseException()
+        else:
+            raise KickbaseException()
         
     def league_collect_gift(self, league: Union[str, LeagueData]) -> True:
         league_id = self._get_league_id(league)
