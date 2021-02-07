@@ -1,19 +1,26 @@
 from kickbase_api.kickbase import Kickbase
 from kickbase_api.models.player import Player
 from kickbase_api.models.player_stats import PlayerStats
+from kickbase_api.exceptions import KickbaseException
 import operator
 
 class PredictBuy:
 
+    # const
     TOP_PLAYER = 3
-    LAST_GAMES = 3
-
-    # PENALTIES/EXTRA SCORE
     POINT_PENALTY = 0.2
     PLAY_TIME_PENALTY = 0.1
 
     # vars
     MAX_PLAY_TIME = 5400
+
+    # params
+    LAST_GAMES: int = None
+
+    # defaults
+    DEFAULTS = {
+        "last_games": 3
+    }
 
     # INPUT
     ''' #for optional_player in player_tm:
@@ -23,6 +30,15 @@ class PredictBuy:
         'stats': player_stats       # Player_Stats
     }
     '''
+
+    def __init__(self, params: dict):
+        try:
+            if params["default"] == True:
+                self.LAST_GAMES = self.DEFAULTS["last_games"]
+            else:
+                self.LAST_GAMES = params["considered_days"]
+        except:
+            raise KickbaseException()
 
     def predict(self, player_tm: [dict] = []) -> [dict]:
         top_player: [dict] = []
@@ -53,8 +69,6 @@ class PredictBuy:
                     'eval': p[4]
                 }
                 top_player.append(predicted)
-
-        #print(top_player)
 
         return top_player
 
@@ -123,6 +137,3 @@ class PredictBuy:
 
     def getCurrentSeason(self) -> str:
         return '2021'
-
-    def getCurrentMatchday(self) -> int:
-        return 14

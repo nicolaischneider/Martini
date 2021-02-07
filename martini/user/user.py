@@ -240,13 +240,22 @@ class User():
         resp_code['m'] = "Player added to TM successfully"
         return resp_code
 
-    def getPredictionBuy(self):
-        predict = PredictBuy()
+    def getPredictionBuy(self, buy_params: dict):
+        try:
+            predict = PredictBuy(buy_params)
+        except:
+            print("Something was wrong with setting of parameters")
+            return []
+
         prediction = predict.predict(player_tm=self.getPlayerOnTradeMarket())
         return prediction
 
-    def getPredictionSell(self):
-        predict = PredictSell()
+    def getPredictionSell(self, sell_params: dict):
+        try:
+            predict = PredictSell(sell_params)
+        except:
+            print("Something was wrong with setting of parameters")
+            return []
 
         # check if player was added to TM; if yes remove
         players = self.getUserPlayer()['player']
@@ -254,7 +263,7 @@ class User():
         try:
             market = self.kickbase.market(self.leagueData)
         except:
-            return {}
+            return []
 
         for p in players:
             addedToTM = False

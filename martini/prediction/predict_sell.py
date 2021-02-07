@@ -1,15 +1,35 @@
 from kickbase_api.kickbase import Kickbase
 from kickbase_api.models.player import Player
+from kickbase_api.exceptions import KickbaseException
 import operator
 
 class PredictSell:
 
+    # const
     TOP_PLAYER = 3
-    EVAL_THRESHOLD = 20
+
+    # params
+    MIN_PROFIT: int = None
+    CHECK_TREND: bool = None
+
+    # defaults
+    DEFAULT = {
+        "min_profit": 15,
+        "check_trend": False
+    }
+
+    def __init__(self, params: dict):
+        try:
+            if params["default"] == True:
+                self.MIN_PROFIT = self.DEFAULT["min_profit"]
+                self.CHECK_TREND = self.DEFAULT["check_trend"]
+            else:
+                self.MIN_PROFIT = params["min_profit"]
+                self.CHECK_TREND = params["check_trend"]
+        except:
+            raise KickbaseException()
 
     def predict(self, player_op: [dict] = []) -> [dict]:
-        #player_op: all players that the user currently owns are in player_op
-        
         #list of recommended players to sell
         players_to_sell = []
 
@@ -25,10 +45,13 @@ class PredictSell:
             # specify stats to pass through
             evaluatedPlayer = (player['first_name'], player['last_name'], player['id_player'], profit, profit_perc, evaluation)
             
-            if evaluation > self.EVAL_THRESHOLD:
+            if evaluation >= 0:
                 evaluated_players.append(evaluatedPlayer)
             else:
                 print("player not worth selling due to eval score " + str(evaluation))
+
+        if len(evaluated_players) == 0:
+            return []
 
         # sort list by highest evaluation and choose top n player
         evaluated_players.sort(key=operator.itemgetter(5))
@@ -60,15 +83,10 @@ class PredictSell:
 
         #check profit
         profit_perc = ((float(player['market_val'] / player['market_val_purchased']))-1)
-
-        if profit_perc < 0:
+        if float((profit_perc*100)) < float(self.MIN_PROFIT):
             return -1
-
-        #normalize
-        #profit_norm = profit / int(player['market_val_purchased'])
 
         #add to score
         #at the current state: just adds the percentage of market value decrease to the score
         score += int(100 * profit_perc)
-
         return score

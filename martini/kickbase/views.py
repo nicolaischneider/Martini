@@ -93,17 +93,38 @@ def getTransactions(request, *args, **kwargs):
     transactions = k_user.getListOfTransactions()
     return JsonResponse(transactions)
 
+@csrf_exempt
 def getPrediction(request, *args, **kwargs):
+    if request.method != 'POST':
+        return JsonResponse({"m": "Bad Request"}) # change to http error response
+
     if k_user.isLoggedIn == False:
         return JsonResponse(ERR_JSON)
 
-    predBuy = k_user.getPredictionBuy()
-    predSell = k_user.getPredictionSell()
-    prediction = {
-        "Buy": predBuy,
-        "Sell": predSell
-    }
-    return JsonResponse(prediction)
+    # parse request
+    try:
+        body = json.loads(request.body)
+        buy_params = body['BUY']
+        sell_params = body['SELL']
+
+        # buy
+        if buy_params["type"] == "ML":
+            predBuy = []
+        
+        if buy_params["type"] == "LOGIC_BUY":
+            predBuy = k_user.getPredictionBuy(buy_params)
+
+        # sell
+        predSell = k_user.getPredictionSell(sell_params)
+
+        prediction = {
+            "Buy": predBuy,
+            "Sell": predSell
+        }
+
+        return JsonResponse(prediction)
+    except:
+        return JsonResponse({"m": "Issue with prediction"})
 
 @csrf_exempt
 def trade(request, *args, **kwargs):
