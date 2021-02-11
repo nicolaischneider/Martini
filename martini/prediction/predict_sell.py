@@ -6,26 +6,22 @@ import operator
 class PredictSell:
 
     # const
-    TOP_PLAYER = 3
+    TOP_PLAYER = 5
 
     # params
     MIN_PROFIT: int = None
-    CHECK_TREND: bool = None
 
     # defaults
     DEFAULT = {
         "min_profit": 15,
-        "check_trend": False
     }
 
     def __init__(self, params: dict):
         try:
             if params["default"] == True:
                 self.MIN_PROFIT = self.DEFAULT["min_profit"]
-                self.CHECK_TREND = self.DEFAULT["check_trend"]
             else:
                 self.MIN_PROFIT = params["min_profit"]
-                self.CHECK_TREND = params["check_trend"]
         except:
             raise KickbaseException()
 

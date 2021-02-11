@@ -15,6 +15,7 @@ k_user = User()
 ERR_JSON = {
     "error": "You need to login first"
 }
+ERR_BAD_REQ = {"m": "Bad Request"}
 
 def home_view(request, *args, **kwargs):
     return HttpResponse("<h1>Welcome to the Martini API</h1>")
@@ -22,24 +23,30 @@ def home_view(request, *args, **kwargs):
 # Create your views here.
 @csrf_exempt
 def login(request, *args, **kwargs):
+
+    print("hallo ?")
+
     if request.method != 'POST':
-        return JsonResponse({"m": "Bad Request"}) # change to http error response
+        return JsonResponse(ERR_BAD_REQ) # change to http error response
 
-    body = json.loads(request.body)
-    email = body['email']
-    pw = body['pw']
+    try:
+        body = json.loads(request.body)
+        email = body['email']
+        pw = body['pw']
 
-    isLoggedIn = k_user.login(email, pw)
-    if isLoggedIn == True:
-        responseString = "Logged in succesfully"
-    else:
-        responseString = "Something went wrong during Login"
+        isLoggedIn = k_user.login(email, pw)
+        if isLoggedIn == True:
+            responseString = "Logged in succesfully"
+        else:
+            responseString = "Something went wrong during Login"
 
-    resp =  {
-        "m": responseString,
-        "loggedIn": isLoggedIn
-    }
-    return JsonResponse(resp)
+        resp =  {
+            "m": responseString,
+            "loggedIn": isLoggedIn
+        }
+        return JsonResponse(resp)
+    except:
+        return JsonResponse(ERR_BAD_REQ)
 
 def logout(request, *args, **kwargs):
     if k_user.isLoggedIn == False:
@@ -96,7 +103,7 @@ def getTransactions(request, *args, **kwargs):
 @csrf_exempt
 def getPrediction(request, *args, **kwargs):
     if request.method != 'POST':
-        return JsonResponse({"m": "Bad Request"}) # change to http error response
+        return JsonResponse(ERR_BAD_REQ) # change to http error response
 
     if k_user.isLoggedIn == False:
         return JsonResponse(ERR_JSON)
@@ -134,20 +141,23 @@ def trade(request, *args, **kwargs):
     if k_user.isLoggedIn == False:
         return JsonResponse(ERR_JSON)
 
-    body = json.loads(request.body)
-    trade_type = body["type"]
-    player_id = body["player_id"]
-    price = body["price"]
+    try:
+        body = json.loads(request.body)
+        trade_type = body["type"]
+        player_id = body["player_id"]
+        price = body["price"]
 
-    if trade_type == "BUY":
-        res = k_user.buyPlayer(str(player_id), int(price))
-        return JsonResponse(res)
+        if trade_type == "BUY":
+            res = k_user.buyPlayer(str(player_id), int(price))
+            return JsonResponse(res)
 
-    if trade_type == "SELL":
-        res = k_user.sellPlayer(str(player_id))
-        return JsonResponse(res)
+        if trade_type == "SELL":
+            res = k_user.sellPlayer(str(player_id))
+            return JsonResponse(res)
 
-    return JsonResponse({"m": "Trade type has to be BUY or SELL"})
+        return JsonResponse({"m": "Trade type has to be BUY or SELL"})
+    except:
+        return JsonResponse(ERR_BAD_REQ)
 
 def getOffers(request, *args, **kwargs):
     if k_user.isLoggedIn == False:
@@ -164,11 +174,14 @@ def acceptOffer(request, *args, **kwargs):
     if k_user.isLoggedIn == False:
         return JsonResponse(ERR_JSON)
 
-    body = json.loads(request.body)
-    offer_id = body["offer_id"]
-    player_id = body["player_id"]
-    resp = k_user.acceptOffer(offer_id, player_id)
-    return JsonResponse(resp)
+    try:
+        body = json.loads(request.body)
+        offer_id = body["offer_id"]
+        player_id = body["player_id"]
+        resp = k_user.acceptOffer(offer_id, player_id)
+        return JsonResponse(resp)
+    except:
+        return JsonResponse(ERR_BAD_REQ)
 
 def get_player_stats_prediction(request, *args, **kwargs):
     if k_user.isLoggedIn == False:

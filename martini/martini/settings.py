@@ -25,7 +25,7 @@ SECRET_KEY = 'u1e_l42i*fp^iay%4tk%&4i0ldjr=1$!g(2+(-vj_y6@i)=g#h'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['46.101.237.138','127.0.0.1']
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -77,10 +77,13 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'martini.wsgi.application'
 
+# allow cors
+CORS_ALLOW_ORIGINS_ALL = True
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = True
 
 # Database
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
