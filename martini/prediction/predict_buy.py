@@ -6,7 +6,7 @@ import operator
 from enum import IntEnum
 
 # analysis
-class Analysis(IntEnum):
+class AnalysisBuy(IntEnum):
     GOOD = 1
     HIGH = 2
     VERY_HIGH = 3
@@ -39,9 +39,11 @@ class PredictBuy:
     # INPUT
     ''' #for optional_player in player_tm:
     optional_player = {
-        'player': id,               # str
-        'value': p_highest_offer,   # int
-        'stats': player_stats       # Player_Stats
+        'first_name': player.first_name,    str
+        'last_name': player.last_name,      str
+        'player_id': player.id,             str
+        'value': p_highest_offer,           int
+        'stats': player_stats               dict
     }
     '''
 
@@ -200,19 +202,19 @@ class PredictBuy:
     def getCurrentSeason(self) -> str:
         return '2021'
 
-    def analyze_score(self, score: int) -> Analysis:
+    def analyze_score(self, score: int) -> AnalysisBuy:
         if self.COMPLEX_EVAL == False:
             if score < 250:
-                return Analysis.GOOD
+                return AnalysisBuy.GOOD
             elif score < 500:
-                return Analysis.HIGH
+                return AnalysisBuy.HIGH
             elif score >= 500:
-                return Analysis.VERY_HIGH
+                return AnalysisBuy.VERY_HIGH
 
         if self.COMPLEX_EVAL == True:
             if score < 350:
-                return Analysis.GOOD
+                return AnalysisBuy.GOOD
             elif score < 550:
-                return Analysis.HIGH
+                return AnalysisBuy.HIGH
             elif score >= 550:
-                return Analysis.VERY_HIGH
+                return AnalysisBuy.VERY_HIGH

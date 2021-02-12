@@ -272,6 +272,16 @@ class User():
                     addedToTM = True
                     break
             if addedToTM == False:
+                # add statistics
+                try:
+                    owned_player = self.kickbase.player_info(self.leagueData, p['id_player'])
+                    player_stats = self.getStatsHistoryOfPlayer(owned_player)
+                    if player_stats is not None:
+                        p['stats'] = player_stats
+                    else:
+                        print("Stats of player couldn't be retrieved")
+                except:
+                    pass
                 players_to_predict.append(p)
 
         prediction = predict.predict(player_op=players_to_predict)

@@ -23,9 +23,6 @@ def home_view(request, *args, **kwargs):
 # Create your views here.
 @csrf_exempt
 def login(request, *args, **kwargs):
-
-    print("hallo ?")
-
     if request.method != 'POST':
         return JsonResponse(ERR_BAD_REQ) # change to http error response
 
