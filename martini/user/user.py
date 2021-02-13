@@ -375,21 +375,22 @@ class User():
                 # get highest offer
                 p_highest_offer: int = -1
                 offer_id = "-"
-                if len(p.offers) > 0:
-                    for offer in p.offers:
-                        if offer.price > p_highest_offer:
-                            p_highest_offer = offer.price
-                            offer_id = offer.id
-                else:
-                    continue
+                offer_exists = (len(p.offers) > 0)
+                for offer in p.offers:
+                    if offer.price > p_highest_offer:
+                        p_highest_offer = offer.price
+                        offer_id = offer.id
 
                 active_offer = {
                     "first_name": p.first_name,
                     "last_name": p.last_name,
                     "player_id": p.id,
-                    "offer_price": p_highest_offer,
-                    "offer_id": offer_id
                 }
+
+                if offer_exists is True:
+                    active_offer["offer_price"] = p_highest_offer
+                    active_offer["offer_id"] = offer_id
+
                 offers.append(active_offer)
 
         resp = {
