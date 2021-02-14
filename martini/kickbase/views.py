@@ -99,26 +99,26 @@ def getTransactions(request, *args, **kwargs):
 
 @csrf_exempt
 def getPrediction(request, *args, **kwargs):
-    if request.method != 'POST':
-        return JsonResponse(ERR_BAD_REQ) # change to http error response
-
     if k_user.isLoggedIn == False:
         return JsonResponse(ERR_JSON)
+    
+    if request.method == 'GET':
+        default_params = {
+            "BUY": {
+                "type": "LOGIC_BUY",
+                "default": True,
+                "complex_eval": False,
+                "considered_days": 3
+            },
+            "SELL": {
+                "default": True,
+                "min_profit": 20
+            }
+        }
+        buy_params = default_params['BUY']
+        sell_params = default_params['SELL']
 
-    # parse request
-    try:
-        body = json.loads(request.body)
-        buy_params = body['BUY']
-        sell_params = body['SELL']
-
-        # buy
-        if buy_params["type"] == "ML":
-            predBuy = []
-        
-        if buy_params["type"] == "LOGIC_BUY":
-            predBuy = k_user.getPredictionBuy(buy_params)
-
-        # sell
+        predBuy = k_user.getPredictionBuy(buy_params)
         predSell = k_user.getPredictionSell(sell_params)
 
         prediction = {
@@ -127,8 +127,34 @@ def getPrediction(request, *args, **kwargs):
         }
 
         return JsonResponse(prediction)
-    except:
-        return JsonResponse({"m": "Issue with prediction"})
+
+    if request.method == 'POST':
+        # parse request
+        try:
+            body = json.loads(request.body)
+            buy_params = body['BUY']
+            sell_params = body['SELL']
+
+            # buy
+            if buy_params["type"] == "ML":
+                predBuy = []
+            
+            if buy_params["type"] == "LOGIC_BUY":
+                predBuy = k_user.getPredictionBuy(buy_params)
+
+            # sell
+            predSell = k_user.getPredictionSell(sell_params)
+
+            prediction = {
+                "Buy": predBuy,
+                "Sell": predSell
+            }
+
+            return JsonResponse(prediction)
+        except:
+            return JsonResponse({"m": "Issue with prediction"})
+
+    return JsonResponse(ERR_BAD_REQ)
 
 @csrf_exempt
 def trade(request, *args, **kwargs):
