@@ -11,9 +11,46 @@ class AnalysisBuy(IntEnum):
     HIGH = 2
     VERY_HIGH = 3
 
+class AnalysisThresholds():
+    DAY2 = 100
+    DAY3 = 130
+    DAY4 = 160
+    DAY5 = 200
+
+    # lower threshold
+    def get_lower_thresh(self, d: int, complex: bool) -> int:
+        if d <= 2:
+            return self.get_thresh(thresh=self.DAY2, complex=complex)
+        elif d is 3:
+            return self.get_thresh(thresh=self.DAY3, complex=complex)
+        elif d is 4:
+            return self.get_thresh(thresh=self.DAY4, complex=complex)
+        elif d <= 5:
+            return self.get_thresh(thresh=self.DAY5, complex=complex)
+
+        return -1
+
+    def get_thresh(self, thresh: int, complex: bool) -> int:
+        if complex is False:
+            return thresh
+        else:
+            return int(float(thresh) * 1.25)
+
+    # get analysis thresholds
+    def get_analysis_thresholds(self, thresh: int) -> [int]:
+        # first val
+        next_thresh = thresh
+        thresholds = []
+
+        for _ in range(0, 2):
+            next_thresh = int(float(next_thresh) * 1.5)
+            thresholds.append(next_thresh)
+
+        return thresholds
+
 class PredictBuy:
     # const
-    SCORE_TRESH = 150
+    SCORE_TRESH = 0
     POINT_PENALTY = 0.2
     MAX_POINT_PENALTY = 0.8
     PLAY_TIME_PENALTY = 0.1
@@ -23,6 +60,7 @@ class PredictBuy:
 
     # vars
     MAX_PLAY_TIME = 5400
+    threshold_helper = AnalysisThresholds()
 
     # params
     LAST_GAMES: int = None
@@ -52,19 +90,19 @@ class PredictBuy:
         if for_sell == True:
             self.LAST_GAMES = self.DEFAULTS["last_games"]
             self.COMPLEX_EVAL = False
+            self.SCORE_TRESH = self.threshold_helper.get_lower_thresh(d=self.LAST_GAMES, complex=self.COMPLEX_EVAL)
             return
 
         # case: buy evaluation
         try:
             if params["default"] == True:
                 self.LAST_GAMES = self.DEFAULTS["last_games"]
+                self.COMPLEX_EVAL = False
             else:
                 self.LAST_GAMES = params["considered_days"]
-            
-            if "complex_eval" in params:
                 self.COMPLEX_EVAL = params["complex_eval"]
-            else:
-                self.COMPLEX_EVAL = False
+
+            self.SCORE_TRESH = self.threshold_helper.get_lower_thresh(d=self.LAST_GAMES, complex=self.COMPLEX_EVAL)
         except:
             raise KickbaseException()
 
@@ -203,18 +241,11 @@ class PredictBuy:
         return '2021'
 
     def analyze_score(self, score: int) -> AnalysisBuy:
-        if self.COMPLEX_EVAL == False:
-            if score < 250:
-                return AnalysisBuy.GOOD
-            elif score < 500:
-                return AnalysisBuy.HIGH
-            elif score >= 500:
-                return AnalysisBuy.VERY_HIGH
+        thresholds = self.threshold_helper.get_analysis_thresholds(self.SCORE_TRESH)
 
-        if self.COMPLEX_EVAL == True:
-            if score < 350:
-                return AnalysisBuy.GOOD
-            elif score < 550:
-                return AnalysisBuy.HIGH
-            elif score >= 550:
-                return AnalysisBuy.VERY_HIGH
+        if score < thresholds[0]:
+            return AnalysisBuy.GOOD
+        elif score < thresholds[1]:
+            return AnalysisBuy.HIGH
+        elif score >= thresholds[1]:
+            return AnalysisBuy.VERY_HIGH
