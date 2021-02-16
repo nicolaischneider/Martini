@@ -21,9 +21,9 @@ class AnalysisThresholds():
     def get_lower_thresh(self, d: int, complex: bool) -> int:
         if d <= 2:
             return self.get_thresh(thresh=self.DAY2, complex=complex)
-        elif d is 3:
+        elif d == 3:
             return self.get_thresh(thresh=self.DAY3, complex=complex)
-        elif d is 4:
+        elif d == 4:
             return self.get_thresh(thresh=self.DAY4, complex=complex)
         elif d <= 5:
             return self.get_thresh(thresh=self.DAY5, complex=complex)
