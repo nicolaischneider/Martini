@@ -6,7 +6,7 @@ class PredictBuyML:
 
     def __init__(self):
         # load ml model using path to model file
-        model = 1 # change
+        self.model = 1 # change
 
     def predict(self, player_tm: [dict] = []) -> [dict]:
         if len(player_tm) == 0:
