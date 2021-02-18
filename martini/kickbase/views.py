@@ -125,7 +125,6 @@ def getPrediction(request, *args, **kwargs):
             "Buy": predBuy,
             "Sell": predSell
         }
-
         return JsonResponse(prediction)
 
     if request.method == 'POST':
@@ -137,7 +136,7 @@ def getPrediction(request, *args, **kwargs):
 
             # buy
             if buy_params["type"] == "ML":
-                predBuy = []
+                predBuy = k_user.getPredictionBuyML()
             
             if buy_params["type"] == "LOGIC_BUY":
                 predBuy = k_user.getPredictionBuy(buy_params)

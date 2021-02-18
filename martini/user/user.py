@@ -15,6 +15,7 @@ from kickbase_api.models.market import Market
 # prediction
 from prediction.predict_buy import PredictBuy
 from prediction.predict_sell import PredictSell
+from prediction.prediction_buy_ml import PredictBuyML
 
 # Create your models here.
 class User():
@@ -239,6 +240,15 @@ class User():
         resp_code['playerAddedToMarket'] = True
         resp_code['m'] = "Player added to TM successfully"
         return resp_code
+
+    def getPredictionBuyML(self):
+        predict = PredictBuyML()
+
+        # get list of players from tm
+        # needed params for each player: first name, last name, id, price*1.1, stats, market values
+
+        predicted_player = predict.predict(player_tm=[])
+        return predicted_player
 
     def getPredictionBuy(self, buy_params: dict):
         try:
