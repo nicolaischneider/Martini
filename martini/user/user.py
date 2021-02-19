@@ -322,6 +322,11 @@ class User():
                 additional_increase: float = 1.1
                 offer_already_made = False
 
+                # check if we own player on tm
+                if m_player.username == self.user.name:
+                    print("player owned by user")
+                    continue
+
                 if len(m_player.offers) > 0:
                     for offer in m_player.offers:
                         # check if user name is samsies
