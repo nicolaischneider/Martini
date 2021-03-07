@@ -31,5 +31,6 @@ urlpatterns = [
     path('trade/', views.trade),                # POST
     path('offers/', views.getOffers),
     path('acceptoffer/', views.acceptOffer),    # POST
+    #path('playervals/', views.get_players_val),
     #path('statspred/', views.get_player_stats_prediction)
 ]

@@ -85,19 +85,12 @@ class PredictSell:
     def evaluatePlayer(self, player) -> int:
         score = 0
 
-        #check trend
-        if player['market_value_trend'] == 'UP':
-        	score -= 10
-        elif player['market_value_trend'] == 'DOWN':
-            score += 10
-
         #check profit
         profit_perc = ((float(player['market_val'] / player['market_val_purchased']))-1)
         if float((profit_perc*100)) < float(self.MIN_PROFIT):
             return -1
 
         #add to score
-        #at the current state: just adds the percentage of market value decrease to the score
         score += int(100 * profit_perc)
         return score
 

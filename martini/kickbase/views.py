@@ -205,6 +205,22 @@ def acceptOffer(request, *args, **kwargs):
     except:
         return JsonResponse(ERR_BAD_REQ)
 
+@csrf_exempt
+def get_players_val(request, *args, **kwargs):
+    if request.method != 'POST':
+        return JsonResponse({"m": "Bad Request"}) # change to http error response
+
+    if k_user.isLoggedIn == False:
+        return JsonResponse(ERR_JSON)
+
+    try:
+        body = json.loads(request.body)
+        #ids = body["ids"]
+        players = k_user.get_player_val(body)
+        return JsonResponse({"p":players})
+    except:
+        return JsonResponse(ERR_BAD_REQ)
+
 def get_player_stats_prediction(request, *args, **kwargs):
     if k_user.isLoggedIn == False:
         return JsonResponse(ERR_JSON)

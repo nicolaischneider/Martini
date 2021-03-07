@@ -109,7 +109,7 @@ class User():
 
             # if transaction was found: add
             if value > 0:
-                t = Transaction.objects.filter(traded_player_id=traded_player_id,value=value)
+                t = Transaction.objects.filter(traded_player_id=traded_player_id,value=value,user_name=user_name)
                 if len(t) > 0:
                     print("transaction already exists: " + traded_player_name + ", Price: " + str(value))
                 else:
@@ -117,12 +117,18 @@ class User():
                         transaction_type=transaction_type,
                         traded_player_id=traded_player_id,
                         traded_player_name=traded_player_name,
-                        value=value
+                        value=value,
+                        user_name=user_name
                     )
                     trans.save()
                     print("added new transaction: " + traded_player_name + ", Price: " + str(value))
 
-        self.transactions = Transaction.objects.all()
+        all_transaction = Transaction.objects.all()
+        user_transactions = []
+        for t in all_transaction:
+            if t.user_name == user_name:
+                user_transactions.append(t)
+        self.transactions = user_transactions
         return True
 
     @classmethod
@@ -145,6 +151,9 @@ class User():
 
         stored_player = OwnedPlayer.objects.all()
         for op in stored_player:
+            if op.user_name != self.user.name:
+                continue
+
             id_player_stored = op.traded_player_id
             still_owned = False
 
@@ -162,7 +171,7 @@ class User():
             id_player = p.id
             market_val = p.market_value
 
-            owned_player = OwnedPlayer.objects.filter(traded_player_id=id_player)
+            owned_player = OwnedPlayer.objects.filter(traded_player_id=id_player,user_name=self.user.name)
             if len(owned_player) > 0:
                 print("player with id " + id_player + " is already stored")
             else:
@@ -175,7 +184,8 @@ class User():
                 
                 new_owned_player = OwnedPlayer(
                     traded_player_id=id_player,
-                    market_value_purchased=new_owned_player_val
+                    market_value_purchased=new_owned_player_val,
+                    user_name=self.user.name
                 )
                 new_owned_player.save()        
 
@@ -426,6 +436,8 @@ class User():
             resp["m"] = "Something went wrong with accepting the offer"
             return resp
 
+        self.getTransactions()
+        
         resp["playerSold"] = True
         return resp
 
@@ -499,7 +511,7 @@ class User():
             id_player = p.id
 
             market_value_purchased = "--"
-            owned_player = OwnedPlayer.objects.filter(traded_player_id=id_player)
+            owned_player = OwnedPlayer.objects.filter(traded_player_id=id_player, user_name=self.user.name)
             if len(owned_player) == 1:
                 for op in owned_player:
                     market_value_purchased = op.market_value_purchased
@@ -555,6 +567,25 @@ class User():
             return transactionJSON
         else:
             return {"m":"no transactions"}
+
+    def get_player_val(self, ids):
+        vals = []
+        print(ids)
+        for key in ids:
+            try:
+                player = self.kickbase.player_info(self.leagueData, ids[key])
+                name = player.first_name + " " + player.last_name
+                hist = self.getMarketValueHistoryOfPlayer(player)
+                val = {
+                    "name": str(name),
+                    "marketvalue": hist.marketvalues
+                }
+                vals.append(val)
+                break
+            except:
+                print("player not found")
+                pass
+        return vals
 
     def getStatsForPrediction(self):
         ERR = {"e": "ZOMEZING WENT WRONG"}
