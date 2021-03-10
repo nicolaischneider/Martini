@@ -68,6 +68,7 @@ def logout(request, *args, **kwargs):
     }
     return JsonResponse(resp)
 
+@csrf_exempt
 def getUser(request, *args, **kwargs):
     if request.method != 'POST':
         return JsonResponse(ERR_BAD_REQ) # change to http error response
@@ -85,6 +86,7 @@ def getUser(request, *args, **kwargs):
     }
     return JsonResponse(userData)
 
+@csrf_exempt
 def getUserStats(request, *args, **kwargs):
     if request.method != 'POST':
         return JsonResponse(ERR_BAD_REQ) # change to http error response
@@ -102,6 +104,7 @@ def getUserStats(request, *args, **kwargs):
     }
     return JsonResponse(userValues)
 
+@csrf_exempt
 def getPlayers(request, *args, **kwargs):
     if request.method != 'POST':
         return JsonResponse(ERR_BAD_REQ) # change to http error response
@@ -112,6 +115,7 @@ def getPlayers(request, *args, **kwargs):
     players = k_user.getUserPlayer()
     return JsonResponse(players)
 
+@csrf_exempt
 def getTransactions(request, *args, **kwargs):
     if request.method != 'POST':
         return JsonResponse(ERR_BAD_REQ) # change to http error response
@@ -209,6 +213,7 @@ def trade(request, *args, **kwargs):
     except:
         return JsonResponse(ERR_BAD_REQ)
 
+@csrf_exempt
 def getOffers(request, *args, **kwargs):
     if request.method != 'POST':
         return JsonResponse(ERR_BAD_REQ) # change to http error response
