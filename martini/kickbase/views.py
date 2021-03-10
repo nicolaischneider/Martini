@@ -20,6 +20,19 @@ ERR_BAD_REQ = {"m": "Bad Request"}
 def home_view(request, *args, **kwargs):
     return HttpResponse("<h1>Welcome to the Martini API</h1>")
 
+# login
+def login_with_credentials(body) -> bool:
+    if k_user.isLoggedIn == True:
+        return True
+
+    json_body = json.loads(body)
+    login_body = json_body['LOGIN']
+    email = login_body['email']
+    pw = login_body['pw']
+
+    isLoggedIn = k_user.login(email, pw)
+    return isLoggedIn
+
 # Create your views here.
 @csrf_exempt
 def login(request, *args, **kwargs):
@@ -56,7 +69,10 @@ def logout(request, *args, **kwargs):
     return JsonResponse(resp)
 
 def getUser(request, *args, **kwargs):
-    if k_user.isLoggedIn == False:
+    if request.method != 'POST':
+        return JsonResponse(ERR_BAD_REQ) # change to http error response
+
+    if login_with_credentials(request.body) == False:
         return JsonResponse(ERR_JSON)
 
     usr = k_user.getUser()
@@ -70,7 +86,10 @@ def getUser(request, *args, **kwargs):
     return JsonResponse(userData)
 
 def getUserStats(request, *args, **kwargs):
-    if k_user.isLoggedIn == False:
+    if request.method != 'POST':
+        return JsonResponse(ERR_BAD_REQ) # change to http error response
+
+    if login_with_credentials(request.body) == False:
         return JsonResponse(ERR_JSON)
 
     usr = k_user.getUser()    
@@ -84,14 +103,20 @@ def getUserStats(request, *args, **kwargs):
     return JsonResponse(userValues)
 
 def getPlayers(request, *args, **kwargs):
-    if k_user.isLoggedIn == False:
+    if request.method != 'POST':
+        return JsonResponse(ERR_BAD_REQ) # change to http error response
+
+    if login_with_credentials(request.body) == False:
         return JsonResponse(ERR_JSON)
 
     players = k_user.getUserPlayer()
     return JsonResponse(players)
 
 def getTransactions(request, *args, **kwargs):
-    if k_user.isLoggedIn == False:
+    if request.method != 'POST':
+        return JsonResponse(ERR_BAD_REQ) # change to http error response
+
+    if login_with_credentials(request.body) == False:
         return JsonResponse(ERR_JSON)
 
     transactions = k_user.getListOfTransactions()
@@ -99,7 +124,10 @@ def getTransactions(request, *args, **kwargs):
 
 @csrf_exempt
 def getPrediction(request, *args, **kwargs):
-    if k_user.isLoggedIn == False:
+    if request.method != 'POST':
+        return JsonResponse(ERR_BAD_REQ) # change to http error response
+
+    if login_with_credentials(request.body) == False:
         return JsonResponse(ERR_JSON)
     
     if request.method == 'GET':
@@ -158,9 +186,9 @@ def getPrediction(request, *args, **kwargs):
 @csrf_exempt
 def trade(request, *args, **kwargs):
     if request.method != 'POST':
-        return JsonResponse({"m": "Bad Request"}) # change to http error response
+        return JsonResponse(ERR_BAD_REQ) # change to http error response
 
-    if k_user.isLoggedIn == False:
+    if login_with_credentials(request.body) == False:
         return JsonResponse(ERR_JSON)
 
     try:
@@ -182,7 +210,10 @@ def trade(request, *args, **kwargs):
         return JsonResponse(ERR_BAD_REQ)
 
 def getOffers(request, *args, **kwargs):
-    if k_user.isLoggedIn == False:
+    if request.method != 'POST':
+        return JsonResponse(ERR_BAD_REQ) # change to http error response
+
+    if login_with_credentials(request.body) == False:
         return JsonResponse(ERR_JSON)
 
     offers = k_user.getOffers()
@@ -191,9 +222,9 @@ def getOffers(request, *args, **kwargs):
 @csrf_exempt
 def acceptOffer(request, *args, **kwargs):
     if request.method != 'POST':
-        return JsonResponse({"m": "Bad Request"}) # change to http error response
+        return JsonResponse(ERR_BAD_REQ) # change to http error response
 
-    if k_user.isLoggedIn == False:
+    if login_with_credentials(request.body) == False:
         return JsonResponse(ERR_JSON)
 
     try:
