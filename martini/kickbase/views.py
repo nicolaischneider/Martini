@@ -13,7 +13,7 @@ k_user = User()
 
 # error response for not being logged in
 ERR_JSON = {
-    "error": "You need to login first"
+    "error": "You need to login first or your Request was wrong"
 }
 ERR_BAD_REQ = {"m": "Bad Request"}
 
@@ -24,14 +24,16 @@ def home_view(request, *args, **kwargs):
 def login_with_credentials(body) -> bool:
     if k_user.isLoggedIn == True:
         return True
+    try:
+        json_body = json.loads(body)
+        login_body = json_body['LOGIN']
+        email = login_body['email']
+        pw = login_body['pw']
 
-    json_body = json.loads(body)
-    login_body = json_body['LOGIN']
-    email = login_body['email']
-    pw = login_body['pw']
-
-    isLoggedIn = k_user.login(email, pw)
-    return isLoggedIn
+        isLoggedIn = k_user.login(email, pw)
+        return isLoggedIn
+    except:
+        return False
 
 # Create your views here.
 @csrf_exempt
@@ -133,8 +135,17 @@ def getPrediction(request, *args, **kwargs):
 
     if login_with_credentials(request.body) == False:
         return JsonResponse(ERR_JSON)
+
+    try:
+        body = json.loads(request.body)
+    except:
+        return JsonResponse(ERR_BAD_REQ)
+
+    hasConfig = False
+    if 'BUY' in body:
+        hasConfig = True
     
-    if request.method == 'GET':
+    if hasConfig == False:
         default_params = {
             "BUY": {
                 "type": "LOGIC_BUY",
@@ -159,7 +170,7 @@ def getPrediction(request, *args, **kwargs):
         }
         return JsonResponse(prediction)
 
-    if request.method == 'POST':
+    else:
         # parse request
         try:
             body = json.loads(request.body)
@@ -184,8 +195,6 @@ def getPrediction(request, *args, **kwargs):
             return JsonResponse(prediction)
         except:
             return JsonResponse({"m": "Issue with prediction"})
-
-    return JsonResponse(ERR_BAD_REQ)
 
 @csrf_exempt
 def trade(request, *args, **kwargs):
