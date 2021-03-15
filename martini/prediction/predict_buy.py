@@ -179,7 +179,7 @@ class PredictBuy:
             penalty_points = self.MAX_POINT_PENALTY
         score = int(score * (1-(penalty_points)))
 
-        # compute playtime points
+        # compute playtime pointss
         last_play_time = -1
         for stats_day in relevant_stats:
             # fill play time

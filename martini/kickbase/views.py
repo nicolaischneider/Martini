@@ -9,7 +9,7 @@ from kickbase_api.models.player_marketvalue_history import PlayerMarketValueHist
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.csrf import csrf_protect
 
-k_user = User()
+#k_user: User = None
 
 # error response for not being logged in
 ERR_JSON = {
@@ -21,9 +21,11 @@ def home_view(request, *args, **kwargs):
     return HttpResponse("<h1>Welcome to the Martini API</h1>")
 
 # login
-def login_with_credentials(body) -> bool:
-    if k_user.isLoggedIn == True:
-        return True
+def login_with_credentials(body):
+    k_user = User()
+
+    #if k_user.isLoggedIn == True:
+    #    return True
     try:
         json_body = json.loads(body)
         login_body = json_body['LOGIN']
@@ -31,15 +33,19 @@ def login_with_credentials(body) -> bool:
         pw = login_body['pw']
 
         isLoggedIn = k_user.login(email, pw)
-        return isLoggedIn
+        if isLoggedIn == False:
+            print("Login failed")
+        return (isLoggedIn, k_user)
     except:
-        return False
+        return (False, k_user)
 
 # Create your views here.
 @csrf_exempt
 def login(request, *args, **kwargs):
     if request.method != 'POST':
         return JsonResponse(ERR_BAD_REQ) # change to http error response
+
+    k_user = User()
 
     try:
         body = json.loads(request.body)
@@ -61,10 +67,12 @@ def login(request, *args, **kwargs):
         return JsonResponse(ERR_BAD_REQ)
 
 def logout(request, *args, **kwargs):
-    if k_user.isLoggedIn == False:
-        return JsonResponse(ERR_JSON)
+    #initialize_user()
+
+    #if k_user.isLoggedIn == False:
+    #    return JsonResponse(ERR_JSON)
         
-    k_user.logout()
+    #k_user.logout()
     resp =  {
         "m": "Logged out",
     }
@@ -75,7 +83,8 @@ def getUser(request, *args, **kwargs):
     if request.method != 'POST':
         return JsonResponse(ERR_BAD_REQ) # change to http error response
 
-    if login_with_credentials(request.body) == False:
+    isLoggedIn, k_user = login_with_credentials(request.body)
+    if isLoggedIn == False:
         return JsonResponse(ERR_JSON)
 
     usr = k_user.getUser()
@@ -93,7 +102,8 @@ def getUserStats(request, *args, **kwargs):
     if request.method != 'POST':
         return JsonResponse(ERR_BAD_REQ) # change to http error response
 
-    if login_with_credentials(request.body) == False:
+    isLoggedIn, k_user = login_with_credentials(request.body)
+    if isLoggedIn == False:
         return JsonResponse(ERR_JSON)
 
     usr = k_user.getUser()    
@@ -111,7 +121,8 @@ def getPlayers(request, *args, **kwargs):
     if request.method != 'POST':
         return JsonResponse(ERR_BAD_REQ) # change to http error response
 
-    if login_with_credentials(request.body) == False:
+    isLoggedIn, k_user = login_with_credentials(request.body)
+    if isLoggedIn == False:
         return JsonResponse(ERR_JSON)
 
     players = k_user.getUserPlayer()
@@ -122,7 +133,8 @@ def getTransactions(request, *args, **kwargs):
     if request.method != 'POST':
         return JsonResponse(ERR_BAD_REQ) # change to http error response
 
-    if login_with_credentials(request.body) == False:
+    isLoggedIn, k_user = login_with_credentials(request.body)
+    if isLoggedIn == False:
         return JsonResponse(ERR_JSON)
 
     transactions = k_user.getListOfTransactions()
@@ -133,7 +145,8 @@ def getPrediction(request, *args, **kwargs):
     if request.method != 'POST':
         return JsonResponse(ERR_BAD_REQ) # change to http error response
 
-    if login_with_credentials(request.body) == False:
+    isLoggedIn, k_user = login_with_credentials(request.body)
+    if isLoggedIn == False:
         return JsonResponse(ERR_JSON)
 
     try:
@@ -201,7 +214,8 @@ def trade(request, *args, **kwargs):
     if request.method != 'POST':
         return JsonResponse(ERR_BAD_REQ) # change to http error response
 
-    if login_with_credentials(request.body) == False:
+    isLoggedIn, k_user = login_with_credentials(request.body)
+    if isLoggedIn == False:
         return JsonResponse(ERR_JSON)
 
     try:
@@ -227,7 +241,8 @@ def getOffers(request, *args, **kwargs):
     if request.method != 'POST':
         return JsonResponse(ERR_BAD_REQ) # change to http error response
 
-    if login_with_credentials(request.body) == False:
+    isLoggedIn, k_user = login_with_credentials(request.body)
+    if isLoggedIn == False:
         return JsonResponse(ERR_JSON)
 
     offers = k_user.getOffers()
@@ -238,7 +253,8 @@ def acceptOffer(request, *args, **kwargs):
     if request.method != 'POST':
         return JsonResponse(ERR_BAD_REQ) # change to http error response
 
-    if login_with_credentials(request.body) == False:
+    isLoggedIn, k_user = login_with_credentials(request.body)
+    if isLoggedIn == False:
         return JsonResponse(ERR_JSON)
 
     try:
@@ -255,7 +271,8 @@ def get_players_val(request, *args, **kwargs):
     if request.method != 'POST':
         return JsonResponse({"m": "Bad Request"}) # change to http error response
 
-    if k_user.isLoggedIn == False:
+    isLoggedIn, k_user = login_with_credentials(request.body)
+    if isLoggedIn == False:
         return JsonResponse(ERR_JSON)
 
     try:
@@ -267,7 +284,8 @@ def get_players_val(request, *args, **kwargs):
         return JsonResponse(ERR_BAD_REQ)
 
 def get_player_stats_prediction(request, *args, **kwargs):
-    if k_user.isLoggedIn == False:
+    isLoggedIn, k_user = login_with_credentials(request.body)
+    if isLoggedIn == False:
         return JsonResponse(ERR_JSON)
     stats = k_user.getStatsForPrediction()
     return JsonResponse(stats)

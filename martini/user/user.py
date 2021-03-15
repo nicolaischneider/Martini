@@ -46,10 +46,13 @@ class User():
             return False
 
         if self.getUserStats() != True:
+            print("failed at updating player")
             return False
+
         if self.getTransactions() != True:
+            print("failed at getting tranactions")
             return False
-        
+
         self.updateOwnedPlayer()
         self.isLoggedIn = True
         return True
