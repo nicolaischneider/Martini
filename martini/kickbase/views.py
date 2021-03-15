@@ -278,7 +278,7 @@ def get_players_val(request, *args, **kwargs):
     try:
         body = json.loads(request.body)
         #ids = body["ids"]
-        players = k_user.get_player_val(body)
+        players = k_user.get_player_val(body["id"])
         return JsonResponse({"p":players})
     except:
         return JsonResponse(ERR_BAD_REQ)

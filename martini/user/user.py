@@ -573,21 +573,18 @@ class User():
 
     def get_player_val(self, ids):
         vals = []
-        print(ids)
-        for key in ids:
-            try:
-                player = self.kickbase.player_info(self.leagueData, ids[key])
-                name = player.first_name + " " + player.last_name
-                hist = self.getMarketValueHistoryOfPlayer(player)
-                val = {
-                    "name": str(name),
-                    "marketvalue": hist.marketvalues
-                }
-                vals.append(val)
-                break
-            except:
-                print("player not found")
-                pass
+        try:
+            player = self.kickbase.player_info(self.leagueData, ids)
+            name = player.first_name + " " + player.last_name
+            hist = self.getMarketValueHistoryOfPlayer(player)
+            val = {
+                "name": str(name),
+                "marketvalue": hist.marketvalues
+            }
+            vals.append(val)
+        except:
+            print("player not found")
+            pass
         return vals
 
     def getStatsForPrediction(self):
