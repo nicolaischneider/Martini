@@ -28,5 +28,112 @@ Run the project (`manage.py` is placed under `/martini`) using the following com
 $ python3 manage.py runserver
 ```
 
+## HTTPS Requests
+`POST /login`: (`/logout` is a GET request)
+```
+{
+    "email": string,
+    "pw": string
+}
+```
+
+`POST /userstats`:
+```
+{
+    "LOGIN": {
+        "email": string,
+        "pw": string
+    }
+}
+```
+
+`POST /player`:
+```
+{
+    "LOGIN": {
+        "email": string,
+        "pw": string
+    }
+}
+```
+
+`POST /transactions`:
+```
+{
+    "LOGIN": {
+        "email": string,
+        "pw": string
+    }
+}
+```
+
+`POST /predict`:
+```
+{
+    "LOGIN": {
+        "email": string,
+        "pw": string
+    },  
+    "BUY": {
+        "type": "LOGIC_BUY", # set to "ML" for machine learning; not implemented, just return an empty array
+        "default": boolean,
+        "complex_eval": boolean,
+        "considered_days": integer
+    },
+    "SELL": {
+        "default": false,
+        "min_profit": 5
+    }
+}
+```
+
+`POST /trade` (Buy):
+```
+{
+    "LOGIN": {
+        "email": string,
+        "pw": string
+    },
+    "type": "BUY",
+    "player_id": string,
+    "price": integer
+}
+```
+
+`POST /trade` (Sell):
+```
+{
+    "LOGIN": {
+        "email": string,
+        "pw": string
+    },
+    "type": "SELL",
+    "player_id": string,
+    "price": integer # enter any; won't be considered
+}
+```
+
+`POST /offers`:
+```
+{
+    "LOGIN": {
+        "email": string,
+        "pw": string
+    }
+}
+```
+
+`POST /acceptoffer`:
+```
+{
+    "LOGIN": {
+        "email": string,
+        "pw": string
+    },
+    "offer_id": string,
+    "player_id": string
+}
+```
+
 ## Credits
 Thanks to [kevinskyba](https://github.com/kevinskyba) and his Kickbase API which made **Martini** possible.
