@@ -12,15 +12,15 @@ All code can be found in `/martini`. The code is subdivided into the following s
 ## Prerequisites
 Install all prerequisites within a virtual environment:
 ```
-$ python3 -m venv env
-$ source bin/activate
+$ python3 -m venv <name_env>
+$ source <name_env>/bin/activate
 $ pip install -r requirements.txt
 ```
 
 ## Setup for each session
 Activate the virtual environment for every new session:
 ```
-$ source bin/activate
+$ source <name_env>/bin/activate
 ```
 
 Run the project (`manage.py` is placed under `/martini`) using the following command:
