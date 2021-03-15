@@ -569,7 +569,10 @@ class User():
             }
             return transactionJSON
         else:
-            return {"m":"no transactions"}
+            transactionJSON = {
+                "transactions": []
+            }
+            return transactionJSON
 
     def get_player_val(self, ids):
         vals = []
